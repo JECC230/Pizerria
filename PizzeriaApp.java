@@ -1,11 +1,11 @@
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Scanner;
-import java.util.Stack;
-
+import java.math.BigDecimal;       // Se importa para manejar valores monetarios (precios) con precisión, evitando errores de redondeo comunes en 'double' o 'float'.
+import java.util.ArrayList;        // Se importa para utilizar la clase ArrayList, que implementa la interfaz List y se usa para el menú de productos.
+import java.util.InputMismatchException; // Se importa para manejar la excepción que ocurre cuando el usuario ingresa un tipo de dato incorrecto, como texto en lugar de un número.
+import java.util.LinkedList;       // Se importa para utilizar la clase LinkedList, que implementa la interfaz Queue y se usa para la cola de pedidos.
+import java.util.List;             // Se importa para usar la interfaz List, una colección ordenada que permite acceso por índice.
+import java.util.Queue;            // Se importa para usar la interfaz Queue, que define la estructura de una cola (FIFO) para los pedidos.
+import java.util.Scanner;          // Se importa para leer la entrada del usuario desde la consola, como números y texto.
+import java.util.Stack;            // Se importa para utilizar la clase Stack, que implementa una pila (LIFO) para las tareas urgentes.
 public class PizzeriaApp {
 
     // Estructuras de datos
@@ -13,6 +13,7 @@ public class PizzeriaApp {
     private static Queue<Pedido> colaDePedidos = new LinkedList<>();
     private static List<Producto> menu = new ArrayList<>();
 
+    
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -22,7 +23,7 @@ public class PizzeriaApp {
         int opcion;
         do {
             mostrarMenuPrincipal();
-            opcion = scanner.nextInt();
+            opcion = leerOpcion();
             scanner.nextLine(); // Consumir el salto de línea
 
             switch (opcion) {
@@ -49,6 +50,18 @@ public class PizzeriaApp {
         scanner.close();
     }
 
+    private static int leerOpcion() {
+        while (true) {
+            try {
+                System.out.print("Selecciona una opción: ");
+                return scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("¡Entrada no válida! Por favor, ingresa un número.");
+                scanner.nextLine(); // Limpiar el buffer de entrada
+            }
+        }
+    }
+
     private static void mostrarMenuPrincipal() {
         System.out.println("\n--- Sistema de Gestión de Pizzería ---");
         System.out.println("1. Gestionar Tareas Urgentes (Pila)");
@@ -56,7 +69,6 @@ public class PizzeriaApp {
         System.out.println("3. Gestionar Menú de Productos (Lista)");
         System.out.println("4. Ver todas las tareas pendientes");
         System.out.println("0. Salir");
-        System.out.print("Selecciona una opción: ");
     }
 
     private static void inicializarMenu() {
@@ -75,9 +87,8 @@ public class PizzeriaApp {
             System.out.println("2. Resolver tarea (Pop)");
             System.out.println("3. Ver tarea más urgente (Peek)");
             System.out.println("0. Volver al menú principal");
-            System.out.print("Selecciona una opción: ");
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            opcion = leerOpcion();
+            scanner.nextLine(); // Consumir el salto de línea
 
             switch (opcion) {
                 case 1:
@@ -118,9 +129,8 @@ public class PizzeriaApp {
             System.out.println("2. Preparar siguiente pedido (Dequeue)");
             System.out.println("3. Ver siguiente pedido (Front)");
             System.out.println("0. Volver al menú principal");
-            System.out.print("Selecciona una opción: ");
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            opcion = leerOpcion();
+            scanner.nextLine(); // Consumir el salto de línea
 
             switch (opcion) {
                 case 1:
@@ -162,7 +172,7 @@ public class PizzeriaApp {
             }
             System.out.println("0. Finalizar pedido");
             System.out.print("Agrega un producto por ID (o 0 para terminar): ");
-            opcionProducto = scanner.nextInt();
+            opcionProducto = leerOpcion();
             if (opcionProducto > 0) {
                 Producto productoSeleccionado = buscarProducto(opcionProducto);
                 if (productoSeleccionado != null) {
@@ -186,8 +196,7 @@ public class PizzeriaApp {
             System.out.println("3. Eliminar producto (Borrar)");
             System.out.println("4. Buscar producto por ID");
             System.out.println("0. Volver al menú principal");
-            System.out.print("Selecciona una opción: ");
-            opcion = scanner.nextInt();
+            opcion = leerOpcion();
             scanner.nextLine();
 
             switch (opcion) {
@@ -197,18 +206,27 @@ public class PizzeriaApp {
                     break;
                 case 2:
                     System.out.print("ID del nuevo producto: ");
-                    int idNuevo = scanner.nextInt();
+                    int idNuevo = leerOpcion();
                     scanner.nextLine();
                     System.out.print("Nombre del nuevo producto: ");
                     String nombreNuevo = scanner.nextLine();
                     System.out.print("Precio del nuevo producto: ");
-                    BigDecimal precioNuevo = scanner.nextBigDecimal();
+                    BigDecimal precioNuevo;
+                    while (true) {
+                        try {
+                            precioNuevo = scanner.nextBigDecimal();
+                            break;
+                        } catch (InputMismatchException e) {
+                            System.out.println("¡Entrada no válida! Por favor, ingresa un número decimal para el precio.");
+                            scanner.nextLine(); // Limpiar el buffer de entrada
+                        }
+                    }
                     menu.add(new Producto(idNuevo, nombreNuevo, precioNuevo));
                     System.out.println("Producto agregado al menú.");
                     break;
                 case 3:
                     System.out.print("ID del producto a eliminar: ");
-                    int idEliminar = scanner.nextInt();
+                    int idEliminar = leerOpcion();
                     Producto aEliminar = buscarProducto(idEliminar);
                     if (aEliminar != null) {
                         menu.remove(aEliminar);
@@ -219,7 +237,7 @@ public class PizzeriaApp {
                     break;
                 case 4:
                     System.out.print("ID del producto a buscar: ");
-                    int idBuscar = scanner.nextInt();
+                    int idBuscar = leerOpcion();
                     Producto encontrado = buscarProducto(idBuscar);
                     if (encontrado != null) {
                         System.out.println("Producto encontrado: " + encontrado);
